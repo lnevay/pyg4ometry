@@ -124,6 +124,10 @@ def _generate_name(typename, index, name, isZone, rootname):
 
 
 class _Boolean:
+    def __init__(self, body, typestring):
+        self.body = body
+        self._typestring = typestring
+
     def generate_name(self, index, rootname=None):
         typename = type(self).__name__
         typename = typename[:3]
@@ -134,20 +138,17 @@ class _Boolean:
 
 class Subtraction(_Boolean):
     def __init__(self, body):
-        self.body = body
-        self._typestring = "sub"
+        super().__init__(body, "sub")
 
 
 class Intersection(_Boolean):
     def __init__(self, body):
-        self.body = body
-        self._typestrin = "int"
+        super().__init__(body, "int")
 
 
 class Union(_Boolean):
     def __init__(self, body):
-        self.body = body
-        self._typestring = "uni"
+        super().__init__(body, "uni")
 
 
 class Zone(vis.ViewableMixin):
