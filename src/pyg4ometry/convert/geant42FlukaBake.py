@@ -151,7 +151,7 @@ def geant4Logical2Fluka(logicalVolume, flukaRegistry=None):
     ###########################################
     if logicalVolume.type == "logical":
         materialName = logicalVolume.material.name
-        materialNameShort = flukaRegistry.materialShortName[materialName]
+        materialNameShort = flukaRegistry.materialLong2ShortName[materialName]
 
         try:
             flukaMaterial = flukaRegistry.materials[materialNameShort]
@@ -236,7 +236,7 @@ def geant4PhysicalVolume2Fluka(
             )
 
         materialName = daughterVolumes[0].logicalVolume.material.name
-        materialNameShort = flukaRegistry.materialShortName[materialName]
+        materialNameShort = flukaRegistry.materialLong2ShortName[materialName]
 
         try:
             flukaMaterial = flukaRegistry.materials[materialNameShort]
@@ -276,7 +276,7 @@ def geant4PhysicalVolume2Fluka(
         if physicalVolume.logicalVolume.type == "logical":
             flukaRegistry.addRegion(flukaMotherRegion)
             materialName = physicalVolume.logicalVolume.material.name
-            materialNameShort = flukaRegistry.materialShortName[materialName]
+            materialNameShort = flukaRegistry.materialLong2ShortName[materialName]
 
             try:
                 flukaMaterial = flukaRegistry.materials[materialNameShort]
@@ -1977,7 +1977,7 @@ def geant4MaterialDict2Fluka(matr, freg):
             materialNameShort = "M" + format(freg.iMaterials, "03")
             # print(material[1].name, materialNameShort)
             geant4Material2Fluka(material[1], freg, materialNameShort=materialNameShort)
-            freg.materialShortName[material[1].name] = materialNameShort
+            freg.materialLong2ShortName[material[1].name] = materialNameShort
             freg.iMaterials += 1
 
     return freg
@@ -2001,8 +2001,8 @@ def geant4Material2Fluka(
     # materialNameShort = makeShortName(materialNameStrip)
 
     # protect against multiply defining the same material
-    if materialName in freg.materialShortName:
-        return freg.materials[freg.materialShortName[materialName]]
+    if materialName in freg.materialLong2ShortName:
+        return freg.materials[freg.materialLong2ShortName[materialName]]
 
     # Only want to use materials (FLUKA COMPOUND or MATERIAL)
     if isinstance(materialInstance, _geant4.Material):
