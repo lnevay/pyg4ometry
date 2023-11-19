@@ -405,6 +405,9 @@ class Material(MaterialBase):
         self.components = []
         self.properties = {}
 
+        # to allow nist construction but warn if temperature or pressure set later
+        self._constructionFinished = False
+
         self._state_variables = {
             "temperature": None,
             "temperature_unit": None,
@@ -455,6 +458,8 @@ class Material(MaterialBase):
             self.set_pressure(pressure, pressure_unit)
 
         self._addToRegistry()
+
+        self._constructionFinished = True
 
     def add_element_massfraction(self, element, massfraction):
         """
@@ -519,17 +524,17 @@ class Material(MaterialBase):
 
         self.components.append((material_obj, fractionmass, "massfraction"))
 
-    def set_pressure(self, value, unit="pascal"):
-        if self.type in ["predefined", "arbitrary"]:
-            msg = "Cannot set pressure for predefined or aribtrary materials."
+    def set_pressure(self, value, unit="pascal",):
+        if self.type in ["nist", "arbitrary"] and self._constructionFinished:
+            msg = "Cannot set pressure for predefined (i.e. NIST) or arbitrary materials."
             raise ValueError(msg)
 
         self._state_variables["pressure"] = value
         self._state_variables["pressure_unit"] = unit
 
     def set_temperature(self, value, unit="K"):
-        if self.type in ["nist", "arbitrary"]:
-            msg = "Cannot set temperature for predefined or aribtrary materials."
+        if self.type in ["nist", "arbitrary"] and self._constructionFinished:
+            msg = "Cannot set temperature for predefined (i.e. NIST) or arbitrary materials."
             raise ValueError(msg)
         self._state_variables["temperature"] = value
         self._state_variables["temperature_unit"] = unit
