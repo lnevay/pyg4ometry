@@ -54,8 +54,20 @@ def predefinedMaterialNames():
     names.extend(i[0] for i in _PREDEFINED_COMPOUNDS)
     return names
 
+class _MaterialBase:
+    """
+    Holder for common parameters for all types of materials including
+    BuiltIn, Material and Compound
+    """
+    def __init__(self, name, density, longName=None):
+        self.name = name
+        self.density = density
+        self.longName = longName
 
-class BuiltIn:
+        if len(name) > 8:
+            raise ValueError("It is not possible to have a material with a name longer than 8 characters in total")
+
+class BuiltIn(_MaterialBase):
     def __init__(
         self,
         name,
@@ -64,11 +76,11 @@ class BuiltIn:
         atomicMass=None,
         density=None,
         flukaregistry=None,
+        longName=None
     ):
-        self.name = name
+        super().__init__(name, density, longName)
         self.atomicNumber = atomicNumber
         self.atomicMass = atomicMass
-        self.density = density
         if flukaregistry is not None:
             flukaregistry.addMaterial(self)
 
@@ -94,7 +106,17 @@ def defineBuiltInFlukaMaterials(flukaregistry=None):
     return out
 
 
-class _MatProp:
+class _MaterialWithPressure(_MaterialBase):
+    """
+    Intermediate class for communal bits of Material and Compound.
+
+    longName is an optional longer name than the 9-character limit in FLUKA
+    purely for self-documentation and to help conversion.
+    """
+    def __init__(self, name, density, pressure, longName=None):
+        super().__init__(name, density, longName)
+        self.pressure = pressure
+
     def isGas(self):
         return self.density < 0.01 or self.pressure
 
@@ -102,7 +124,7 @@ class _MatProp:
         return _Card("MAT-PROP", what1=self.pressure, what4=self.name)
 
 
-class Material(_MatProp):
+class Material(_MaterialWithPressure):
     """
     A FLUKA material consisting of a single element.  This corresponds
     to the case in FLUKA of a single MATERIAL card with no associated
@@ -136,13 +158,12 @@ class Material(_MatProp):
         pressure=None,
         flukaregistry=None,
         comment="",
+        longName=None
     ):
-        self.name = name
+        super().__init__(name, density, pressure, longName)
         self.atomicNumber = atomicNumber
-        self.density = density
         self.atomicMass = atomicMass
         self.massNumber = massNumber
-        self.pressure = pressure
         self.comment = comment
         if flukaregistry is not None:
             flukaregistry.addMaterial(self)
@@ -191,7 +212,7 @@ class Material(_MatProp):
         return iIndex
 
 
-class Compound(_MatProp):
+class Compound(_MaterialWithPressure):
     """
     A FLUKA compound material. This corresponds to the case in
     FLUKA of a single MATERIAL card with one or more associated
@@ -222,15 +243,14 @@ class Compound(_MatProp):
         pressure=None,
         flukaregistry=None,
         comment="",
+        longName=None
     ):
-        self.name = name
-        self.density = density
+        super().__init__(name, density, pressure, longName)
         self.fractions = fractions
         if fractionType not in {"atomic", "mass", "volume"}:
             msg = f"Unknown fractionType: {fractionType}"
             raise ValueError(msg)
         self.fractionType = fractionType
-        self.pressure = pressure
         self.comment = comment
 
         if flukaregistry is not None:
