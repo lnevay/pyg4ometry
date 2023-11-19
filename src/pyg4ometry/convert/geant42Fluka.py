@@ -1994,6 +1994,13 @@ def _pressurePascalToAtmospheres(pressurePascal):
         return pressurePascal # could be None, so pass through
 
 def _getPressureFromMaterialInAtmospheres(g4material):
+    """
+    Ultimately, the parent material to an element may be optional, so
+    have to tolerate None here and in that case or in the case of a solid
+    there isn't a pressure, so we can return None.
+    """
+    if not g4material:
+        return None
     pressure = None
     if g4material.state == "gas":
         pressure = g4material.state_variables["pressure"]
