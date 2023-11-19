@@ -28,7 +28,7 @@ class Writer:
     Class to write FLUKA input files from a fluka registry object.
 
     >>> f = Writer()
-    >>> f.addDetectro(flukaRegObject)
+    >>> f.addDetector(flukaRegObject)
     >>> f.write("model.inp")
     """
 
@@ -59,7 +59,6 @@ class Writer:
         # loop over (init cards)
         for c in self.flukaRegistry.cardDict.keys():
             if c == "TITLE" or c == "DEFAULTS" or c == "BEAM" or c == "BEAMPOS" or c == "":
-                print(self.flukaRegistry.cardDict[c])
                 if type(self.flukaRegistry.cardDict[c]) is list:
                     for cc in self.flukaRegistry.cardDict[c]:
                         cardstr = cc.toFreeString()
@@ -117,8 +116,6 @@ class Writer:
 
         predefinedNames = _material.predefinedMaterialNames()
 
-        f.write(self._flukaFFString + "\n")
-
         for mk in self.flukaRegistry.materials.keys():
             # check if material/compound is already defined
             if mk in predefinedNames:
@@ -129,7 +126,6 @@ class Writer:
         # loop over material assignments
         for rk in self.flukaRegistry.regionDict.keys():
             try:
-                # print(self.flukaRegistry.assignmas[rk])
                 assignmaString = "ASSIGNMA " + self.flukaRegistry.assignmas[rk] + " " + rk
                 f.write(assignmaString + "\n")
             except KeyError:
