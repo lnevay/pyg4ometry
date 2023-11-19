@@ -49,14 +49,22 @@ class FlukaRegistry:
         self.regionDict = _OrderedDict()
         self.materials = _OrderedDict()
         self.iMaterials = 0
-        self.materialShortName = _OrderedDict()
+        self.materialLong2ShortName = _OrderedDict()
         self.latticeDict = _OrderedDict()
         self.cardDict = _OrderedDict()
         self.assignmas = _OrderedDict()
-        self._predefinedMaterialNames = set(predefinedMaterialNames())
+        self._predefinedMaterials = defineBuiltInFlukaMaterials(self)
 
-        # Instantiate the predefined materials as BuiltIn instances
-        defineBuiltInFlukaMaterials(self)
+        # numbers used to provide incremental short names of materials,
+        # elements and isotopes that won't collide whilst remaining inside
+        # the very short 9-character limit for FLUKA.
+        # The naming convention we introduce is:
+        # M1234567 - material
+        # ME1234 - element
+        # MI123 - isotope
+        self._iMaterial = 0
+        self._iElement = 0
+        self._iIsotope = 0
 
         # merge indices (only used if merge functions are used)
         # B -> C, R -> S, M -> N, T->U
@@ -66,6 +74,36 @@ class FlukaRegistry:
         self.iMergeMaterials = 0
 
         self._bodiesAndRegions = {}
+
+    def _getNextMaterialName(self):
+        """
+        This increments the internal counter.
+        """
+        name = "M" + '{:07}'.format(self._iMaterial)
+        self._iMaterial += 1
+        if self._iMaterial > 9999999:
+            raise ValueError("Over 9999999 materials defined which is the limit of the naming convention.")
+        return name
+
+    def _getNextElementName(self):
+        """
+        This increments the internal counter.
+        """
+        name = "ME" + '{:04}'.format(self._iElement)
+        self._iElement += 1
+        if self._iMaterial > 9999:
+            raise ValueError("Over 9999 elements defined which is the limit of the naming convention.")
+        return name
+
+    def _getNextIsotopeName(self):
+        """
+        This increments the internal counter.
+        """
+        name = "MI" + '{:03}'.format(self._iIsotope)
+        self._iIsotope += 1
+        if self._iMaterial > 999:
+            raise ValueError("Over 999 isotopes defined which is the limit of the naming convention.")
+        return name
 
     def addBody(self, body):
         if body.name in self.bodyDict:
@@ -148,6 +186,10 @@ class FlukaRegistry:
         if name in self.materials and name not in self._predefinedMaterialNames:
             raise _IdenticalNameError(name)
         self.materials[material.name] = material
+
+        # longName is optional and could be none - if present, keep a dictionary of long to short name
+        if material.longName:
+            self.materialLong2ShortName[material.longName] = name
 
         if recursive:
             if type(material) is Compound:
