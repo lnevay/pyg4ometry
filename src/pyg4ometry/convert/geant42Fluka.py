@@ -1,4 +1,5 @@
 import pyg4ometry.transformation as _transformation
+import pyg4ometry.gdml.Units as _Units
 import pyg4ometry.geant4 as _geant4
 import pyg4ometry.fluka as _fluka
 import pyg4ometry.pycgal as _pycgal
@@ -17,7 +18,7 @@ from pyg4ometry.fluka.body import *
 # import matplotlib.pyplot as _plt
 
 
-def geant4Reg2FlukaReg(greg, logicalVolumeName=""):
+def geant4Reg2FlukaReg(greg, logicalVolumeName="", useFlukaBuiltInMaterials=True, useFlukaBuiltInElements=True):
     """
     Convert a Geant4 model to a FLUKA one. This is done by handing over a complete
     pyg4ometry.geant4.Registry instance.
@@ -26,6 +27,10 @@ def geant4Reg2FlukaReg(greg, logicalVolumeName=""):
     :type greg: pyg4ometry.geant4.Registry
     :param logicalVolumeName: Name of logical volume to start from in the registry (default getWorldVolume())
     :type logicalVolumeName: str
+    :param useFlukaBuiltInMaterials: whether to substitute NIST materials for known FLUKA builtin ones
+    :type useFlukaBuiltInMaterials: bool
+    :param useFlukaBuiltInElements: use FLUKA's elements in a custom material where available
+    :type useFlukaBuiltInElements: bool
 
     returns:  pyg4ometry.fluka.FlukaRegistry
     """
@@ -36,7 +41,7 @@ def geant4Reg2FlukaReg(greg, logicalVolumeName=""):
         logi = greg.getWorldVolume()
     else:
         logi = greg.logicalVolumeDict[logicalVolumeName]
-    freg = geant4MaterialDict2Fluka(greg.materialDict, freg)
+    freg = geant4MaterialDict2Fluka(greg.materialDict, freg, useFlukaBuiltInMaterials, useFlukaBuiltInElements)
     freg = geant4Logical2Fluka(logi, freg)
 
     return freg
@@ -1961,78 +1966,114 @@ def geant4Solid2FlukaRegion(
     return fregion, flukaNameCount
 
 
-def geant4MaterialDict2Fluka(matr, freg):
-    for material in matr.items():
-        if isinstance(material[1], _geant4.Material):
-            materialNameShort = "M" + format(freg.iMaterials, "03")
-            # print(material[1].name, materialNameShort)
-            geant4Material2Fluka(material[1], freg, materialNameShort=materialNameShort)
-            freg.materialShortName[material[1].name] = materialNameShort
-            freg.iMaterials += 1
+def geant4MaterialDict2Fluka(g4materialDict, freg, useFlukaBuiltInMaterials, useFlukaBuiltInElements):
+    """
+    Convert all the materials in the supplied dictionary of name to geant4 material object.
 
+    :param g4materialDict: Dictionary of name : material object
+    :type g4materialDict: dict(str, pyg4ometry.geant4.Material.Material)
+    :param freg: Fluka registry
+    :type freg: pyg4ometry.fluka.fluka_registry.Registry
+    :param useFlukaBuiltInMaterials: whether to substitute known FLUKA built-in materials.
+    :type useFlukaBuiltInMaterials: Bool
+    :param useFlukaBuiltInElements: whether to substitute known FLUKA built-in elements.
+    :type useFlukaBuiltInElements: Bool
+    """
+    for name, g4material in g4materialDict.items():
+        if isinstance(g4material, _geant4.Material):
+            geant4Material2Fluka(g4material, freg, None, useFlukaBuiltInMaterials, useFlukaBuiltInElements)
+        # else _geant4.Element or _geant4.Isotope aren't explicitly converted
+        # at this high level but only as dependencies of materials
     return freg
 
+def _pressurePascalToAtmospheres(pressurePascal):
+    if pressurePascal:
+        result = pressurePascal / 101325.0
+        return result
+    else:
+        return pressurePascal # could be None, so pass through
+
+def _getPressureFromMaterialInAtmospheres(g4material):
+    pressure = None
+    if g4material.state == "gas":
+        pressure = g4material.state_variables["pressure"]
+        pressureUnit = g4material.state_variables["pressure_unit"]
+        pressure *= _Units.unit(pressureUnit)
+        pressure = _pressurePascalToAtmospheres(pressure)
+    return pressure
 
 def geant4Material2Fluka(
-    material, freg, suggestedDensity=None, elementSuffix=False, materialNameShort=None
+    g4material, freg, suggestedDensity=None, useFlukaBuiltInMaterials=True, useFlukaBuiltInElements=True,
+    elementParentMaterial=None
 ):
-    materialName = material.name
-    materialInstance = material
+    """
+    Convert a single material instance and return the converted object.
 
-    # materialNameStrip = makeStripName(materialName)
-
-    # ensure this name is unique
-    # i = 0
-    # while materialNameStrip in freg.materials:
-    #    if i == 0:
-    #        materialNameStrip += str(i)
-    #    else:
-    #        materialNameStrip[-1] = str(i)
-    # materialNameShort = makeShortName(materialNameStrip)
+    :param g4material: geant4 material instance
+    :type g4material: pyg4ometry.geant4._Material.Material, pyg4ometry.geant4._Material.Element, pyg4ometry.geant4._Material.Isotope
+    :param freg: FLUKA registry object
+    :type freg: pyg4ometry.fluka.fluka_registry.Registry
+    :param suggestedDensity: optional override density for a material
+    :type suggestedDensity: None, float (g/cm3)
+    :param useFlukaBuiltInElements: whether to substitute elements for FLUKA built-in ones
+    :type useFlukaBuiltInElements: Bool
+    """
+    g4MaterialName = g4material.name
 
     # protect against multiply defining the same material
-    if materialName in freg.materialShortName:
-        return freg.materials[freg.materialShortName[materialName]]
+    if g4MaterialName in freg.materialLong2ShortName:
+        return freg.materials[freg.materialLong2ShortName[g4MaterialName]]
 
-    # Only want to use materials (FLUKA COMPOUND or MATERIAL)
-    if isinstance(materialInstance, _geant4.Material):
-        # none, nist, arbitrary, simple, composite
-        if materialInstance.type == "none":
-            msg = "Cannot have material with none type"
-            raise Exception(msg)
+    if isinstance(g4material, _geant4.Material):
+        # built-in, none, nist, arbitrary, simple, composite
+        if useFlukaBuiltInMaterials and g4MaterialName in _G4_MATERIALS_TO_FLUKA_BUILTIN:
+            mat = _fluka.BuiltIn(_G4_MATERIALS_TO_FLUKA_BUILTIN[g4MaterialName], flukaregistry=freg, longName=g4MaterialName)
+            return mat
 
-        elif materialInstance.type == "nist":
-            # make material object from dictionary of information
-            nistMatInstance = _geant4.nist_material_2geant4Material(materialInstance.name)
-            nistMatInstance.type = "composite"  # prevent recursion - Material internally decides if it's a nist material or not
-            return geant4Material2Fluka(nistMatInstance, freg, materialNameShort=materialNameShort)
+        elif g4material.type == "none":
+            raise ValueError("Cannot have material with none type")
 
-        elif materialInstance.type == "arbitrary":
-            msg = "Cannot have material with arbitrary type"
-            raise Exception(msg)
+        elif g4material.type == "arbitrary":
+            raise ValueError("Cannot have material with arbitrary type")
 
-        elif materialInstance.type == "simple":
+        elif g4material.type == "nist":
+            if _geant4.is_nist_element(g4material.name):
+                matOrElement = _geant4.nist_element_2geant4Element(g4MaterialName)
+                fullMaterial = _geant4.nist_material_2geant4Material(g4MaterialName)
+                # this already has the right type of element-simple or element-composite
+                return geant4Material2Fluka(matOrElement, freg, fullMaterial.density, useFlukaBuiltInMaterials,
+                                            useFlukaBuiltInElements, elementParentMaterial=fullMaterial)
+            else:
+                matOrElement = _geant4.nist_material_2geant4Material(g4MaterialName)
+                # prevent recursion - Material internally decides if it's a nist material or not
+                matOrElement.type = "composite"
+                return geant4Material2Fluka(matOrElement, freg, matOrElement.density, useFlukaBuiltInMaterials, useFlukaBuiltInElements)
+
+        elif g4material.type == "simple":
+            flukaShortName = freg._getNextMaterialName()
             fe = _fluka.Material(
-                materialNameShort,
-                materialInstance.atomic_number,
-                materialInstance.density,
+                flukaShortName,
+                g4material.atomic_number,
+                g4material.density,
                 flukaregistry=freg,
-                comment="material-simple: " + materialName,
+                comment="material-simple: " + g4MaterialName,
+                longName=g4MaterialName
             )
             return fe
 
-        elif materialInstance.type == "composite":
+        elif g4material.type == "composite":
             flukaComposition = []
             flukaFractionType = "atomic"
 
-            iComp = 0
-            for comp in materialInstance.components:
+            if len(g4material.components) > 80:
+                raise ValueError("No more than 80 components will be accepted for one material in FLUKA.")
+            for comp in g4material.components:
                 fm = geant4Material2Fluka(
                     comp[0],
                     freg,
-                    materialInstance.density,
-                    elementSuffix=True,
-                    materialNameShort=materialNameShort + format(iComp, "02"),
+                    g4material.density,
+                    useFlukaBuiltInMaterials,
+                    useFlukaBuiltInElements
                 )
 
                 compFraction = float(comp[1])
@@ -2044,85 +2085,106 @@ def geant4Material2Fluka(
                     flukaFractionType = "mass"
 
                 flukaComposition.append((fm, compFraction))
-                iComp += 1
 
+            flukaShortName = freg._getNextMaterialName()
+            pressure = _getPressureFromMaterialInAtmospheres(g4material)
             mat = _fluka.Compound(
-                materialNameShort,
-                materialInstance.density,
+                flukaShortName,
+                g4material.density,
                 flukaComposition,
                 fractionType=flukaFractionType,
+                pressure=pressure,
                 flukaregistry=freg,
-                comment="material-composite: " + materialName,
+                comment="material-composite: " + g4MaterialName,
+                longName=g4MaterialName
             )
             return mat
 
-    elif isinstance(materialInstance, _geant4.Element):
-        # if elementSuffix:
-        #    if len(materialNameShort) >= 6:
-        #        materialNameShort = materialNameShort[:6] + "EL"
-        #    else:
-        #        materialNameShort += "EL"
-        # check again as we've just changed our short name
-        # if materialNameShort in freg.materials:
-        #    return freg.materials[materialNameShort]
+    elif isinstance(g4material, _geant4.Element):
 
-        if materialInstance.type == "element-simple":
+        if useFlukaBuiltInElements and g4MaterialName in _G4_MATERIALS_TO_FLUKA_BUILTIN:
+            # some basic elements are defined as materials, and we have a
+            # map of them such as G4_He -> HELIUM
+            mat = _fluka.BuiltIn(_G4_MATERIALS_TO_FLUKA_BUILTIN[g4MaterialName], flukaregistry=freg, longName=g4MaterialName)
+            return mat
+
+        pressure = _getPressureFromMaterialInAtmospheres(elementParentMaterial)
+
+        # Use the G4 name for elements as we won't have duplicates, and it makes it more readable,
+        # and they are short enough for elements always to fit within the 8 character limit.
+        if g4MaterialName.startswith("G4_") and len(g4MaterialName) < 8:
+            flukaShortName = g4MaterialName
+        else:
+            flukaShortName = freg._getNextElementName()
+
+        if g4material.type == "element-simple":
+            atomicMass = None if useFlukaBuiltInElements else g4material.A
             mat = _fluka.Material(
-                materialNameShort,
-                materialInstance.Z,
+                flukaShortName,
+                g4material.Z,
                 suggestedDensity,
-                materialInstance.A,
+                atomicMass,
+                pressure=pressure,
                 flukaregistry=freg,
-                comment="element-simple: " + materialName,
+                comment="element-simple: " + g4MaterialName,
+                longName=g4MaterialName
             )
             return mat
 
-        elif materialInstance.type == "element-composite":
+        elif g4material.type == "element-composite":
             flukaComponentNames = []
             flukaComponents = []
             flukaComponentFractions = []
 
-            iComp = 0
-            for iso in materialInstance.components:
+            completeComment = "element-composite: " + g4MaterialName + ": "
+            particleComments = []
+            for iso in g4material.components:
                 fi = geant4Material2Fluka(
                     iso[0],
                     freg,
-                    materialNameShort=materialNameShort + format(iComp, "02"),
+                    suggestedDensity,
+                    useFlukaBuiltInMaterials,
+                    useFlukaBuiltInElements
                 )
-
-                compFlukaName = makeShortName(iso[0].name)
-                compFraction = iso[1]
-
-                flukaComponentNames.append(compFlukaName)
+                particleComments.append(fi.comment.split()[-1])
+                fi.comment = "" # reset to empty
+                flukaComponentNames.append(fi.name)
                 flukaComponents.append(fi)
-                flukaComponentFractions.append(compFraction)
-                iComp += 1
+                flukaComponentFractions.append(iso[1])
+
+            # assign it to the first thing so
+            completeComment += ", ".join(particleComments)
+            flukaComponents[0].comment = completeComment
 
             flukaComposition = list(zip(flukaComponents, flukaComponentFractions))
-
             mat = _fluka.Compound(
-                materialNameShort,
-                0.123456789,
+                flukaShortName,
+                suggestedDensity,
                 flukaComposition,
                 fractionType="atomic",
+                pressure=pressure,
                 flukaregistry=freg,
-                comment="element-composite: " + materialName,
+                longName=g4MaterialName
             )
             return mat
 
-    elif isinstance(materialInstance, _geant4.Isotope):
+    elif isinstance(g4material, _geant4.Isotope):
+        if g4MaterialName.startswith("G4_") and len(g4MaterialName) < 8:
+            flukaShortName = g4MaterialName
+        else:
+            flukaShortName = freg._getNextIsotopeName()
         fi = _fluka.Material(
-            materialNameShort,
-            materialInstance.Z,
-            10,  # this density won't be used finally but needs to be there
+            flukaShortName,
+            g4material.Z,
+            suggestedDensity,
             flukaregistry=freg,
-            atomicMass=materialInstance.a,
-            massNumber=materialInstance.N,
-            comment="isotope: " + materialName,
+            massNumber=g4material.N,
+            comment="isotope: " + g4MaterialName,
+            longName=g4MaterialName
         )
         return fi
     else:
-        raise TypeError('Unknown material.type "' + str(material.type) + '"')
+        raise TypeError('Unknown material.type "' + str(g4material.type) + '"')
 
 
 def pycsgmesh2FlukaRegion(mesh, name, transform, flukaRegistry, commentName):
