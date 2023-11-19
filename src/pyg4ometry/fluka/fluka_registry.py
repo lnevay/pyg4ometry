@@ -135,6 +135,13 @@ class FlukaRegistry:
         return latticeCellAABBs
 
     def addMaterial(self, material, recursive=False):
+        """
+        :param material: The material object to add to the registry.
+        :type material: pyg4ometry.fluka.material.Material, pyg4ometry.fluka.material.Compound
+
+        Add the material object to the registry. This will not allow
+        materials with the same name as a builtin material in FLUKA.
+        """
         name = material.name
         # Only allow redefinition of builtins..  anything else is
         # almost certainly not deliberate.
@@ -151,6 +158,12 @@ class FlukaRegistry:
         return self.materials[name]
 
     def addMaterialAssignments(self, mat, *regions):
+        """
+        :param mat: Material to assign to list of regions
+        :type mat: pyg4ometry.fluka.material.Material, pyg4ometry.fluka.material.Compound, pyg4ometry.fluka.material.BuiltIn, str
+        :param regions: list of regions to assign the material to
+        :type regions: pyg4ometry.fluka.region.Region (multiple of)
+        """
         if isinstance(mat, _Region):
             msg = "A Region instance has been provided as a material"
             raise TypeError(msg)

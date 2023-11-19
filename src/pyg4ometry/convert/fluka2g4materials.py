@@ -4,7 +4,7 @@ from pyg4ometry.exceptions import FLUKAError as _FLUKAError
 _periodicTable = None
 
 # http://www.fluka.org/content/manuals/online/5.2.html
-# See also fluka/material.py
+# See also fluka/material.py where this list is partially duplicated... should coalesce
 FLUKA_BUILTIN_TO_G4_MATERIAL_MAP = {
     # Elements
     "BLCKHOLE": "G4_Galactic",

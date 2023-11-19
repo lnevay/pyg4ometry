@@ -23,6 +23,8 @@ def geant4Reg2FlukaReg(greg, logicalVolumeName=""):
 
     :param greg: geant4 registry
     :type greg: pyg4ometry.geant4.Registry
+    :param logicalVolumeName: Name of logical volume to start from in the registry (default getWorldVolume())
+    :type logicalVolumeName: str
 
     returns:  pyg4ometry.fluka.FlukaRegistry
     """

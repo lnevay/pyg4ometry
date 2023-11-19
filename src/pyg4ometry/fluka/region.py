@@ -78,7 +78,7 @@ def sympy_to_zone(sympy_expr, freg):
     z = Zone()
 
     for and_args in sympy_expr.args:
-        # either can by symbol or Not (of just a symbol)
+        # either can be a Symbol or Not (of just a symbol)
         if isinstance(and_args, _sympy.Symbol):
             bstr = str(and_args)
             b = freg.bodyDict[bstr]
@@ -110,8 +110,10 @@ def simplify_region(region):
 
 
 def _generate_name(typename, index, name, isZone, rootname):
-    """Try to generate a sensible name for intermediate
-    Geant4 booleans which have no FLUKA analogue."""
+    """
+    Try to generate a sensible name for intermediate
+    Geant4 booleans which have no FLUKA analogue.
+    """
     if rootname is None:
         rootname = f"a{uuid4()}".replace("-", "")
 
@@ -326,8 +328,9 @@ class Zone(vis.ViewableMixin):
         return result
 
     def dumps(self):
-        """Returns a string of this Zone instance in the equivalent
-        FLUKA syntax."""
+        """
+        Returns a string of this Zone instance in the equivalent FLUKA syntax.
+        """
         fs = ""
 
         booleans = self.intersections + self.subtractions
@@ -346,8 +349,10 @@ class Zone(vis.ViewableMixin):
         return fs
 
     def dumpsDebug(self):
-        """Returns a string of this Zone instance in the equivalent
-        FLUKA syntax with extra debug information"""
+        """
+        Returns a string of this Zone instance in the equivalent
+        FLUKA syntax with extra debug information
+        """
         fs = ""
 
         booleans = self.intersections + self.subtractions

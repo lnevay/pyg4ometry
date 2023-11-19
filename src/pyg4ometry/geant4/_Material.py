@@ -621,9 +621,10 @@ class Element(MaterialBase):
         """
         Add an isotope as a component to an element as an abundance fraction in the element.
 
-        Inputs:
-          element   - pyg4ometry.geant4.Material.Isotope instance
-          abundance - float, 0.0 < abundance <= 1.0
+        :param isotope: Isotope instance
+        :type isotope: pyg4ometry.geant4._Material.Isotope
+        :param abundance: Abundance fraction 0.0 < abundance <= 1.0
+        :type abundance: float
         """
         isotope_obj = self.get_material_oject(isotope)
         if not isinstance(isotope, Isotope):
@@ -642,7 +643,7 @@ class Isotope(MaterialBase):
         name - string
         Z    - int, atomic number
         N    - int, mass number
-        a    - float, molar weight in g/mole
+        a    - float, molar mass in g/mole
     """
 
     def __init__(self, name, Z, N, a, registry=None):
