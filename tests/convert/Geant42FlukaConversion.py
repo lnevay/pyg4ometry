@@ -34,6 +34,10 @@ from . import T108_geant4ReplicaZ2Fluka
 from . import T109_geant4ReplicaPhi2Fluka
 from . import T110_geant4ReplicaRho2Fluka
 
+from . import T300_g42fluka_material_nist_full_expansion
+from . import T301_g42fluka_material_nist_use_builtin
+from . import T302_g42fluka_material_single_component
+
 
 class Geant42FlukaConversionTests(_unittest.TestCase):
     def test_Geant42FlukaConversion_T001_Box(self):
@@ -309,6 +313,33 @@ class Geant42FlukaConversionTests(_unittest.TestCase):
             refFilePath=testdata["convert/T110_geant4ReplicaRho2Fluka.inp"],
         )
 
+    def test_T300_g42fluka_material_nist_full_expansion(self):
+        T300_g42fluka_material_nist_full_expansion.Test(
+            vis=False,
+            interactive=False,
+            fluka=True,
+            outputPath=tmptestdir,
+            refFilePath=testdata["convert/T300_g42fluka_material_nist_full_expansion.inp"],
+        )
+        
+    def test_T301_g42fluka_material_nist_use_builtin(self):
+        T301_g42fluka_material_nist_use_builtin.Test(
+            vis=False,
+            interactive=False,
+            fluka=True,
+            outputPath=tmptestdir,
+            refFilePath=testdata["convert/T301_g42fluka_material_nist_use_builtin.inp"],
+        )
+        
+    def test_T302_g42fluka_material_single_component(self):
+        T302_g42fluka_material_single_component.Test(
+            vis=False,
+            interactive=False,
+            fluka=True,
+            outputPath=tmptestdir,
+            refFilePath=testdata["convert/T302_g42fluka_material_single_component.inp"],
+        )
+        
 
 if __name__ == "__main__":
     _unittest.main(verbosity=2)

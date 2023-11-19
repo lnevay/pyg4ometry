@@ -14,8 +14,7 @@ def Test(vis=False, interactive=False, outputPath=None, refFilePath=None):
 
     density = 2.48
     z = 87
-    massNumber = None  # i.e. determine it automatically given z.
-    fr = Material("FRANCIUM", z, density, massNumber=massNumber, flukaregistry=freg)
+    fr = Material("FRANCIUM", z, density, flukaregistry=freg)
     card = fr.toCards()[0]
     assert card.keyword == "MATERIAL"
     assert card.what1 == z
