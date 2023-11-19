@@ -2074,6 +2074,9 @@ def geant4Material2Fluka(
 
             if len(g4material.components) > 80:
                 raise ValueError("No more than 80 components will be accepted for one material in FLUKA.")
+
+            singleComponent = len(g4material.components) == 1
+
             for comp in g4material.components:
                 fm = geant4Material2Fluka(
                     comp[0],
@@ -2082,6 +2085,9 @@ def geant4Material2Fluka(
                     useFlukaBuiltInMaterials,
                     useFlukaBuiltInElements
                 )
+                if singleComponent:
+                    freg.addMaterialAlias(fm, g4MaterialName)
+                    return fm
 
                 compFraction = float(comp[1])
                 compFractionType = comp[2]

@@ -185,7 +185,7 @@ class FlukaRegistry:
         # is an instance of Material or Compound.
         if name in self.materials and name not in self._predefinedMaterials:
             raise _IdenticalNameError(name)
-        self.materials[material.name] = material
+        self.materials[name] = material
 
         # longName is optional and could be none - if present, keep a dictionary of long to short name
         if material.longName:
@@ -195,6 +195,17 @@ class FlukaRegistry:
             if type(material) is Compound:
                 for comp in material.fractions:
                     self.addMaterial(comp[0], True)
+
+    def addMaterialAlias(self, material, alias):
+        """
+        :param material: fluka material to reference
+        :type material: pyg4ometry.fluka.material.BuiltIn, pyg4ometry.fluka.material.Material, pyg4ometry.fluka.material.Compound
+        :param alias: long name alias that will reference that material
+        :type alias: str
+        """
+        if alias in self.materialLong2ShortName or alias in self.materials:
+            raise _IdenticalNameError(alias)
+        self.materialLong2ShortName[alias] = material.name
 
     def getMaterial(self, name):
         return self.materials[name]
