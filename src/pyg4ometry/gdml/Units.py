@@ -27,6 +27,10 @@ units = {
     "us": 1.0e-6,
     "ms": 1.0e-3,
     "s": 1.0,
+    # Pressure
+    "bar": 100000, # 100kPa
+    "mbar": 1000,  # 1kPa
+    "pascal": 1.0
 }
 
 
