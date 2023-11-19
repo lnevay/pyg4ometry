@@ -107,6 +107,7 @@ def sympy_to_region(sympy_expr, freg, regionName="name"):
 
 def simplify_region(region):
     r = Region()
+    # CLEARLY TODO...
 
 
 def _generate_name(typename, index, name, isZone, rootname):
@@ -164,11 +165,13 @@ class Zone(vis.ViewableMixin):
     :type name: string
 
     """
-
     def __init__(self, name=None):
         self.intersections = []
         self.subtractions = []
         self.name = name
+
+    def __len__(self):
+        return len(self.intersections) + len(self.subtractions)
 
     def addSubtraction(self, body):
         """Add a body or subzone as a subtraction to this Zone
@@ -584,17 +587,14 @@ class Region(vis.ViewableMixin):
             self.addZone(z)
 
     def removeNullZones(self):
-        # print('removeNullZones')
         zones = []
-
         for z, i in zip(self.zones, range(len(self.zones))):
+            if len(z) == 0:
+                continue
             m = z.mesh()
-            # print(i, z)
             if m.vertexCount() != 0:
                 zones.append(z)
-
-        print("removeNullZones", len(self.zones), len(zones))
-
+        #print("removeNullZones", len(self.zones), len(zones))
         self.zones = zones
 
     def convertToDNF(self, fluka_registry):
