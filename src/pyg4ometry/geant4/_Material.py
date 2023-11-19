@@ -154,6 +154,9 @@ def nist_materials_z_lookup(z):
     d = getNistElementZToName()
     return d[z]
 
+def is_nist_element(name):
+    matDict = nist_materials_name_lookup(name)
+    return matDict["type"] == "element"
 
 def nist_element_2geant4Element(name, reg=None):
     """
