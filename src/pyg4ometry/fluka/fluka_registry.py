@@ -181,9 +181,9 @@ class FlukaRegistry:
         materials with the same name as a builtin material in FLUKA.
         """
         name = material.name
-        # Only allow redefinition of builtins..  anything else is
-        # almost certainly not deliberate.
-        if name in self.materials and name not in self._predefinedMaterialNames:
+        # Only allow redefinition of builtins. But in this case it
+        # is an instance of Material or Compound.
+        if name in self.materials and name not in self._predefinedMaterials:
             raise _IdenticalNameError(name)
         self.materials[material.name] = material
 
@@ -210,20 +210,17 @@ class FlukaRegistry:
             msg = "A Region instance has been provided as a material"
             raise TypeError(msg)
 
-        try:  # Element or Compound instance
-            materialName = mat.name
-        except AttributeError:  # By name, get Ele/Comp from self.
-            materialName = mat
-            mat = self.materials[materialName]
-        # More checks.
-        if materialName not in self.materials:
-            self.addMaterialAssignments(material)
-        elif mat not in self.materials.values():
-            msg = (
-                f'Mismatch between provided FLUKA material "{mat.name}" for '
-                "assignment and existing found in registry"
-            )
-            raise _FLUKAError(msg)
+        material = None
+        if type(mat) is str:
+            # check if it's builtin
+            if mat in self._predefinedMaterials:
+                material = self._predefinedMaterials[mat]
+            else:
+                material = self.materials[mat] # allow a KeyError for undefined material name
+        else:
+            material = mat
+
+        materialName = material.name
 
         for region in regions:
             # Either region name or Region instance
