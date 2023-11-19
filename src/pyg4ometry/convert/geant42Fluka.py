@@ -6,6 +6,7 @@ from pyg4ometry.pycgal.core import PolygonProcessing as _PolygonProcessing
 from pyg4ometry.fluka.directive import (
     rotoTranslationFromTra2 as _rotoTranslationFromTra2,
 )
+from pyg4ometry.convert.fluka2g4materials import G4_MATERIALS_TO_FLUKA_BUILTIN as _G4_MATERIALS_TO_FLUKA_BUILTIN
 import numpy as _np
 import copy as _copy
 import scipy.linalg as _la
