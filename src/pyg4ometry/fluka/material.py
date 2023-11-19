@@ -184,9 +184,10 @@ class Material(_MaterialWithPressure):
         return material
 
     def flukaFreeString(self, delim=", "):
-        result = "".join(c.toFreeString(delim=delim) for c in self.toCards())
+        result = ""
         if self.comment:
-            result = f"* {self.comment}\n{result}"
+            result += f"* {self.comment}\n{result}"
+        result += "".join(c.toFreeString(delim=delim) for c in self.toCards())
         return result
 
     def __repr__(self):
@@ -293,9 +294,10 @@ class Compound(_MaterialWithPressure):
         return [material, *compounds, *matprop]
 
     def flukaFreeString(self, delim=", "):
-        result = "\n".join(c.toFreeString(delim=delim) for c in self.toCards())
+        result = ""
         if self.comment:
-            result = f"* {self.comment}\n{result}"
+            result += f"* {self.comment}\n{result}"
+        result += "\n".join(c.toFreeString(delim=delim) for c in self.toCards())
         return result
 
     @classmethod
