@@ -154,13 +154,10 @@ def geant4Logical2Fluka(logicalVolume, flukaRegistry=None):
     ###########################################
     if logicalVolume.type == "logical":
         materialName = logicalVolume.material.name
-        materialNameShort = flukaRegistry.materialShortName[materialName]
+        materialNameShort = flukaRegistry.materialLong2ShortName[materialName]
+        flukaMaterial = flukaRegistry.materials[materialNameShort]
+        flukaRegistry.addMaterialAssignments(flukaMaterial, flukaMotherRegion)
 
-        try:
-            flukaMaterial = flukaRegistry.materials[materialNameShort]
-            flukaRegistry.addMaterialAssignments(flukaMaterial, flukaMotherRegion)
-        except KeyError:
-            pass
     elif logicalVolume.type == "assembly":
         flukaRegistry.addMaterialAssignments("AIR", flukaMotherRegion)
 
@@ -237,13 +234,9 @@ def geant4PhysicalVolume2Fluka(
             )
 
         materialName = daughterVolumes[0].logicalVolume.material.name
-        materialNameShort = flukaRegistry.materialShortName[materialName]
-
-        try:
-            flukaMaterial = flukaRegistry.materials[materialNameShort]
-            flukaRegistry.addMaterialAssignments(flukaMaterial, flukaMotherRegion)
-        except KeyError:
-            pass
+        materialNameShort = flukaRegistry.materialLong2ShortName[materialName]
+        flukaMaterial = flukaRegistry.materials[materialNameShort]
+        flukaRegistry.addMaterialAssignments(flukaMaterial, flukaMotherRegion)
     else:
         # loop over daughters and remove from mother region
         for dv in physicalVolume.logicalVolume.daughterVolumes:
@@ -275,7 +268,7 @@ def geant4PhysicalVolume2Fluka(
         if physicalVolume.logicalVolume.type == "logical":
             flukaRegistry.addRegion(flukaMotherRegion)
             materialName = physicalVolume.logicalVolume.material.name
-            materialNameShort = flukaRegistry.materialShortName[materialName]
+            materialNameShort = flukaRegistry.materialLong2ShortName[materialName]
 
             try:
                 flukaMaterial = flukaRegistry.materials[materialNameShort]
