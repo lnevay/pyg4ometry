@@ -76,6 +76,8 @@ def loadNISTMaterialDict():
                 ion = float(line_data[4])
                 niso = int(line_data[5])
                 state = line_data[6]
+                temperature = float(line_data[7])
+                pressure = float(line_data[8])
                 isotopes = []
                 for i in range(niso):
                     isoLine = f.readline()
@@ -93,6 +95,8 @@ def loadNISTMaterialDict():
                     "ionisation": ion,
                     "isotopes": isotopes,
                     "state": state,
+                    "temperature": temperature,
+                    "pressure": pressure
                 }
 
             line = f.readline()
@@ -112,6 +116,8 @@ def loadNISTMaterialDict():
                 rho = float(line_data[3])
                 ion = float(line_data[4])
                 state = line_data[5]
+                temperature = float(line_data[6])
+                pressure = float(line_data[7])
 
                 elements = []
                 for i in range(ncom):
@@ -130,6 +136,8 @@ def loadNISTMaterialDict():
                     "ionisation": ion,
                     "elements": elements,
                     "state": state,
+                    "temperature": temperature,
+                    "pressure": pressure
                 }
 
             line = f.readline()
@@ -183,6 +191,8 @@ def nist_material_2geant4Material(name, reg=None):
             matDict["ncom"],
             reg,
             state=matDict["state"],
+            temperature=matDict["temperature"],
+            pressure=matDict["pressure"]
         )
         d = matDict["elements"]
         for z, nAtoms, massFraction in matDict["elements"]:
@@ -200,6 +210,8 @@ def nist_material_2geant4Material(name, reg=None):
             1,
             reg,
             state=matDict["state"],
+            temperature = matDict["temperature"],
+            pressure = matDict["pressure"]
         )
         result.add_element_massfraction(element, 1.0)
         result.type = "composite"
@@ -239,6 +251,9 @@ def MaterialSingleElement(
     density,
     registry=None,
     tolerateZeroDensity=False,
+    state=None,
+    temperature=None,
+    pressure=None
 ):
     """
     Proxy method to construct a simple material - full description of the element contained is contained in one definition
@@ -259,6 +274,8 @@ def MaterialCompound(
     registry=None,
     tolerateZeroDensity=False,
     state=None,
+    temperature=None,
+    pressure=None
 ):
     """
     Proxy method to construct a composite material - can be any mixture of Elements and/or Materials
