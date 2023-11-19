@@ -638,6 +638,7 @@ class Element(MaterialBase):
         self.Z = kwargs.get("Z", None)
         self.A = kwargs.get("A", None)
         self.components = []
+        self.molarMass = 0
 
         if self.n_comp and not self.Z and not self.A:
             self.type = "element-composite"
@@ -664,6 +665,7 @@ class Element(MaterialBase):
             raise ValueError(msg)
 
         self.components.append((isotope_obj, abundance, "abundance"))
+        self.molarMass += (isotope_obj.a * 1.0)
 
 
 class Isotope(MaterialBase):
