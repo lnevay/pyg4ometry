@@ -224,8 +224,10 @@ def MaterialPredefined(name, registry=None):
     needs to be additionally defined for a NIST compound. A check is performed on the name
     to ensure it is a valid NIST specifier.
 
-    Inputs:
-        name          - string
+    :param name: Name of arbitrary material.
+    :type name: str
+    :param registry: registry instance to register to
+    :type registry: pyg4ometry.geant4.Registry.Registry
     """
     if name not in getNistMaterialList():
         msg = f"{name} is not a NIST compound"
@@ -238,8 +240,10 @@ def MaterialArbitrary(name, registry=None):
     Just a name of a material.  WARNING:  It is left to the
     user to ensure that the name is valid.
 
-    Inputs:
-        name          - string
+    :param name: Name of arbitrary material.
+    :type name: str
+    :param registry: registry instance to register to
+    :type registry: pyg4ometry.geant4.Registry.Registry
     """
     return Material(name=name, arbitrary=True, registry=registry)
 
@@ -604,11 +608,17 @@ class Element(MaterialBase):
 
     It is possible to instantiate a material directly through kwargs.
     The possible kwargs are (but note some are mutually exclusive):
-    name                 - string
-    symbol               - string
-    Z                    - int
-    A                    - int
-    n_comp               - int
+
+    :param name: name
+    :type name: str
+    :param symbol: symbol name
+    :type symbol: str
+    param Z: atomic number
+    :type Z: int
+    :param A: mass number
+    :type A: int
+    :param n_comp: number of components
+    :type n_comp: int
     """
 
     def __init__(self, **kwargs):
@@ -656,13 +666,15 @@ class Isotope(MaterialBase):
     This class that handles isotopes as components of composite materials. An element can be
     defined as a mixture of isotopes.
 
-    Inputs:
-        name - string
-        Z    - int, atomic number
-        N    - int, mass number
-        a    - float, molar mass in g/mole
+    :param name: name
+    :type name: str
+    :param Z: atomic number
+    :type Z: int
+    :param N: mass number
+    :type N: int
+    :param a: molar mass in g/mole
+    :type a: float
     """
-
     def __init__(self, name, Z, N, a, registry=None):
         super().__init__(name, state=None, registry=registry)
         self.Z = Z
