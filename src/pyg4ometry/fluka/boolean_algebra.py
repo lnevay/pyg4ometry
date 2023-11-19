@@ -155,7 +155,7 @@ _MeshedZoneInfo = _namedtuple("MeshedZoneInfo", ["zone", "mesh", "volume"])
 
 
 def simplifyRegion(region):
-    if not _region.isDNF():
+    if not region.isDNF():
         msg = "Must be DNF to simplify region"
         raise ValueError(msg)
 
