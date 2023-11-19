@@ -54,18 +54,22 @@ def predefinedMaterialNames():
     names.extend(i[0] for i in _PREDEFINED_COMPOUNDS)
     return names
 
+
 class _MaterialBase:
     """
     Holder for common parameters for all types of materials including
     BuiltIn, Material and Compound
     """
+
     def __init__(self, name, density, longName=None):
         self.name = name
         self.density = density
         self.longName = longName
 
         if len(name) > 8:
-            raise ValueError("It is not possible to have a material with a name longer than 8 characters in total")
+            msg = "It is not possible to have a material with a name longer than 8 characters in total"
+            raise ValueError(msg)
+
 
 class BuiltIn(_MaterialBase):
     def __init__(
@@ -76,7 +80,7 @@ class BuiltIn(_MaterialBase):
         atomicMass=None,
         density=None,
         flukaregistry=None,
-        longName=None
+        longName=None,
     ):
         super().__init__(name, density, longName)
         self.atomicNumber = atomicNumber
@@ -113,6 +117,7 @@ class _MaterialWithPressure(_MaterialBase):
     longName is an optional longer name than the 9-character limit in FLUKA
     purely for self-documentation and to help conversion.
     """
+
     def __init__(self, name, density, pressure, longName=None):
         super().__init__(name, density, longName)
         self.pressure = pressure
@@ -158,7 +163,7 @@ class Material(_MaterialWithPressure):
         pressure=None,
         flukaregistry=None,
         comment="",
-        longName=None
+        longName=None,
     ):
         super().__init__(name, density, pressure, longName)
         self.atomicNumber = atomicNumber
@@ -244,7 +249,7 @@ class Compound(_MaterialWithPressure):
         pressure=None,
         flukaregistry=None,
         comment="",
-        longName=None
+        longName=None,
     ):
         super().__init__(name, density, pressure, longName)
         self.fractions = fractions

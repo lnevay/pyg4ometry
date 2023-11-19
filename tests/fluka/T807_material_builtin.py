@@ -11,14 +11,13 @@ def Test(vis=False, interactive=False):
     bkh = RPP("OUTER", -50, 50, -50, 50, -50, 50, flukaregistry=freg)
     box = RPP("RPP_BODY", -10, 10, -20, 20, -30, 30, flukaregistry=freg)
 
-
     bkhZone = Zone()
     bkhZone.addIntersection(bkh)
     bkhZone.addSubtraction(box)
     bkhRegion = Region("BLKBODY")
     bkhRegion.addZone(bkhZone)
     freg.addRegion(bkhRegion)
-    
+
     zone = Zone()
     zone.addIntersection(box)
     boxRegion = Region("BOX")
@@ -33,12 +32,12 @@ def Test(vis=False, interactive=False):
     m = freg.materials[freg.assignmas[boxRegion.name]]
     print(m)
     print(type(m))
-    assert(type(m) == pyg4ometry.fluka.material.BuiltIn)
-    
+    assert type(m) == pyg4ometry.fluka.material.BuiltIn
+
     w = pyg4ometry.fluka.Writer()
     w.addDetector(freg)
     w.write("T807_material_builtin.inp")
-    
+
     return {"testStatus": True, "logicalVolume": None, "vtkViewer": None}
 
 

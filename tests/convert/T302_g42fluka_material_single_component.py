@@ -24,11 +24,9 @@ def Test(vis=False, interactive=False, fluka=True, outputPath=None, refFilePath=
     wm = _g4.nist_material_2geant4Material("G4_Galactic")
     air = _g4.nist_material_2geant4Material("G4_AIR")
 
-    denseair = _g4.MaterialCompound("dense_air",
-                                    air.density*12.0,
-                                    1,
-                                    reg,
-                                    pressure=12*_gd.Units.units["mbar"])
+    denseair = _g4.MaterialCompound(
+        "dense_air", air.density * 12.0, 1, reg, pressure=12 * _gd.Units.units["mbar"]
+    )
     denseair.add_material(air, 1.0)
 
     # structure

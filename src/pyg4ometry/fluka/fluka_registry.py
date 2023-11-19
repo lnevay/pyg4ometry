@@ -79,30 +79,33 @@ class FlukaRegistry:
         """
         This increments the internal counter.
         """
-        name = "M" + '{:07}'.format(self._iMaterial)
+        name = "M" + f"{self._iMaterial:07}"
         self._iMaterial += 1
         if self._iMaterial > 9999999:
-            raise ValueError("Over 9999999 materials defined which is the limit of the naming convention.")
+            msg = "Over 9999999 materials defined which is the limit of the naming convention."
+            raise ValueError(msg)
         return name
 
     def _getNextElementName(self):
         """
         This increments the internal counter.
         """
-        name = "ME" + '{:04}'.format(self._iElement)
+        name = "ME" + f"{self._iElement:04}"
         self._iElement += 1
         if self._iMaterial > 9999:
-            raise ValueError("Over 9999 elements defined which is the limit of the naming convention.")
+            msg = "Over 9999 elements defined which is the limit of the naming convention."
+            raise ValueError(msg)
         return name
 
     def _getNextIsotopeName(self):
         """
         This increments the internal counter.
         """
-        name = "MI" + '{:03}'.format(self._iIsotope)
+        name = "MI" + f"{self._iIsotope:03}"
         self._iIsotope += 1
         if self._iMaterial > 999:
-            raise ValueError("Over 999 isotopes defined which is the limit of the naming convention.")
+            msg = "Over 999 isotopes defined which is the limit of the naming convention."
+            raise ValueError(msg)
         return name
 
     def addBody(self, body):
@@ -227,7 +230,7 @@ class FlukaRegistry:
             if mat in self._predefinedMaterials:
                 material = self._predefinedMaterials[mat]
             else:
-                material = self.materials[mat] # allow a KeyError for undefined material name
+                material = self.materials[mat]  # allow a KeyError for undefined material name
         else:
             material = mat
 

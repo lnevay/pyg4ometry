@@ -47,7 +47,7 @@ FLUKA_BUILTIN_TO_G4_MATERIALS = {
     "AIR": "G4_AIR",
 }
 
-G4_MATERIALS_TO_FLUKA_BUILTIN = {v:k for k,v in FLUKA_BUILTIN_TO_G4_MATERIALS.items()}
+G4_MATERIALS_TO_FLUKA_BUILTIN = {v: k for k, v in FLUKA_BUILTIN_TO_G4_MATERIALS.items()}
 
 # Need this to build up the set element instances (distinct from
 # materials in Geant4)
@@ -131,9 +131,7 @@ class _FlukaToG4MaterialConverter:
 
     def convertBuiltin(self, name, flukaMaterial):
         assert name == flukaMaterial.name
-        g4material = _g4.MaterialPredefined(
-            FLUKA_BUILTIN_TO_G4_MATERIALS[name], registry=self.greg
-        )
+        g4material = _g4.MaterialPredefined(FLUKA_BUILTIN_TO_G4_MATERIALS[name], registry=self.greg)
         self.g4materials[name] = g4material
 
     def convertElement(self, name, flukaElement):

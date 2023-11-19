@@ -52,7 +52,9 @@ def Test(vis=False, interactive=False, fluka=True, outputPath=None, refFilePath=
     # fluka conversion
     outputFile = outputPath / "T301_g42fluka_material_nist_use_builtin.inp"
     if fluka:
-        freg = _convert.geant4Reg2FlukaReg(reg, useFlukaBuiltInMaterials=True, useFlukaBuiltInElements=True)
+        freg = _convert.geant4Reg2FlukaReg(
+            reg, useFlukaBuiltInMaterials=True, useFlukaBuiltInElements=True
+        )
 
         # fluka running
         freg.addDefaults(default="PRECISIO")

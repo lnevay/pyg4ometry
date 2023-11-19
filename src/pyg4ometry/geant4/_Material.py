@@ -96,7 +96,7 @@ def loadNISTMaterialDict():
                     "isotopes": isotopes,
                     "state": state,
                     "temperature": temperature,
-                    "pressure": pressure
+                    "pressure": pressure,
                 }
 
             line = f.readline()
@@ -137,7 +137,7 @@ def loadNISTMaterialDict():
                     "elements": elements,
                     "state": state,
                     "temperature": temperature,
-                    "pressure": pressure
+                    "pressure": pressure,
                 }
 
             line = f.readline()
@@ -154,9 +154,11 @@ def nist_materials_z_lookup(z):
     d = getNistElementZToName()
     return d[z]
 
+
 def is_nist_element(name):
     matDict = nist_materials_name_lookup(name)
     return matDict["type"] == "element"
+
 
 def nist_element_2geant4Element(name, reg=None):
     """
@@ -195,7 +197,7 @@ def nist_material_2geant4Material(name, reg=None):
             reg,
             state=matDict["state"],
             temperature=matDict["temperature"],
-            pressure=matDict["pressure"]
+            pressure=matDict["pressure"],
         )
         d = matDict["elements"]
         for z, nAtoms, massFraction in matDict["elements"]:
@@ -213,8 +215,8 @@ def nist_material_2geant4Material(name, reg=None):
             1,
             reg,
             state=matDict["state"],
-            temperature = matDict["temperature"],
-            pressure = matDict["pressure"]
+            temperature=matDict["temperature"],
+            pressure=matDict["pressure"],
         )
         result.add_element_massfraction(element, 1.0)
         result.type = "composite"
@@ -260,7 +262,7 @@ def MaterialSingleElement(
     tolerateZeroDensity=False,
     state=None,
     temperature=None,
-    pressure=None
+    pressure=None,
 ):
     """
     Proxy method to construct a simple material - full description of the element contained is contained in one definition
@@ -282,7 +284,7 @@ def MaterialCompound(
     tolerateZeroDensity=False,
     state=None,
     temperature=None,
-    pressure=None
+    pressure=None,
 ):
     """
     Proxy method to construct a composite material - can be any mixture of Elements and/or Materials
@@ -527,7 +529,11 @@ class Material(MaterialBase):
 
         self.components.append((material_obj, fractionmass, "massfraction"))
 
-    def set_pressure(self, value, unit="pascal",):
+    def set_pressure(
+        self,
+        value,
+        unit="pascal",
+    ):
         if self.type in ["nist", "arbitrary"] and self._constructionFinished:
             msg = "Cannot set pressure for predefined (i.e. NIST) or arbitrary materials."
             raise ValueError(msg)
@@ -668,7 +674,7 @@ class Element(MaterialBase):
             raise ValueError(msg)
 
         self.components.append((isotope_obj, abundance, "abundance"))
-        self.molarMass += (isotope_obj.a * 1.0)
+        self.molarMass += isotope_obj.a * 1.0
 
 
 class Isotope(MaterialBase):
@@ -685,6 +691,7 @@ class Isotope(MaterialBase):
     :param a: molar mass in g/mole
     :type a: float
     """
+
     def __init__(self, name, Z, N, a, registry=None):
         super().__init__(name, state=None, registry=registry)
         self.Z = Z

@@ -53,7 +53,9 @@ def Test(vis=False, interactive=False, fluka=True, outputPath=None, refFilePath=
     outputFile = outputPath / "T300_g42fluka_material_nist_full_expansion.inp"
     if fluka:
         # explicitly don't use builtins for full expansion
-        freg = _convert.geant4Reg2FlukaReg(reg, useFlukaBuiltInMaterials=False, useFlukaBuiltInElements=False)
+        freg = _convert.geant4Reg2FlukaReg(
+            reg, useFlukaBuiltInMaterials=False, useFlukaBuiltInElements=False
+        )
 
         # fluka running
         freg.addDefaults(default="PRECISIO")

@@ -165,6 +165,7 @@ class Zone(vis.ViewableMixin):
     :type name: string
 
     """
+
     def __init__(self, name=None):
         self.intersections = []
         self.subtractions = []
