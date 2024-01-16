@@ -94,6 +94,7 @@ def isZoneContradiction(zone):
 def pruneZone(zone, aabb0=None, aabb=None):
     if not zone.isDNF():
         msg = "Zone must be in DNF"
+        #zone.isDNF()
         raise ValueError(msg)
 
     intersections = zone.intersections
