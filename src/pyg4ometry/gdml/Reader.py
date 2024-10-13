@@ -92,7 +92,7 @@ class Reader:
                             contents += l + end
                 entities[name] = (filename, contents)
 
-        # remove all newline charecters and whitespaces outside tags
+        # remove all newline characters and whitespaces outside tags
         fs = ""
         for l in data:
             l = l.strip()

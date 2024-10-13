@@ -118,7 +118,9 @@ class ViewerBase:
                 materialName = materialName[0 : materialName.find("0x")]
 
             # add vis options
-            if materialName in self.materialVisOptions:
+            if lv.visOptions is not None:
+                self.addVisOptions(lv.name, lv.visOptions)
+            elif materialName in self.materialVisOptions:
                 visOptions = self.materialVisOptions[materialName]
                 visOptions.depth = depth
                 self.addVisOptions(lv.name, visOptions)

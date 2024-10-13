@@ -96,6 +96,7 @@ class LogicalVolume:
         self.bdsimObjects = []
         if _config.doMeshing:
             self.reMesh()
+        self.visOptions = None
         self.auxiliary = []
         self.addAuxiliaryInfo(kwargs.get("auxiliary", None))
 
@@ -869,7 +870,15 @@ class LogicalVolume:
                 self.addAuxiliaryInfo(aux)
         else:
             if auxiliary:
+                from pyg4ometry.visualisation.VisualisationOptions import VisualisationOptions as _visOptions
                 self.auxiliary.append(auxiliary)
+                if auxiliary.auxtype == "bdsim_colour_and_style":
+                    values = auxiliary.auxvalue.split()
+                    visible = bool(int(values[0]))
+                    rgb = list(map(float, values[1:4]))
+                    alpha = float(values[4])
+                    representation = auxiliary.auxunit
+                    self.visOptions = _visOptions(representation, rgb, alpha, visible)
 
     def extent(self, includeBoundingSolid=False):
         """
