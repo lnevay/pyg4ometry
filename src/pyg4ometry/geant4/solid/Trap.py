@@ -27,25 +27,27 @@ class Trap(_SolidBase):
 
     :param name:   name of the volume
     :type name:    str
-    :param pDz:    half length along z
+    All lengths are full lengths as in GDML, i.e. twice the Geant4 half lengths.
+
+    :param pDz:    length along z
     :type pDz:     float, Constant, Quantity, Variable, Expression
-    :param pTheta: polar angle of the line joining the centres of the faces at -/+pDz
+    :param pTheta: polar angle of the line joining the centres of the faces at -/+pDz/2
     :type pTheta:  float, Constant, Quantity, Variable, Expression
-    :param pPhi:   azimuthal angle of the line joining the centres of the faces at -/+pDz
+    :param pPhi:   azimuthal angle of the line joining the centres of the faces at -/+pDz/2
     :type pPhi:    float, Constant, Quantity, Variable, Expression
-    :param pDy1:   half-length at -pDz
+    :param pDy1:   length along y of the face at -pDz/2
     :type pDy1:    float, Constant, Quantity, Variable, Expression
-    :param pDx1:   half length along x of the side at y=-pDy1
+    :param pDx1:   length along x of the side at y=-pDy1/2 of the face at -pDz/2
     :type pDx1:    float, Constant, Quantity, Variable, Expression
-    :param pDx2:   half length along x of the side at y=+pDy1
+    :param pDx2:   length along x of the side at y=+pDy1/2 of the face at -pDz/2
     :type pDx2:    float, Constant, Quantity, Variable, Expression
     :param pAlp1:  angle wrt the y axis from the centre of the side (lower endcap)
     :type pAlp1:   float, Constant, Quantity, Variable, Expression
-    :param pDy2:   half-length at +pDz
+    :param pDy2:   length along y of the face at +pDz/2
     :type pDy2:    float, Constant, Quantity, Variable, Expression
-    :param pDx3:   half-length of the side at y=-pDy2 of the face at +pDz
+    :param pDx3:   length along x of the side at y=-pDy2/2 of the face at +pDz/2
     :type pDx3:    float, Constant, Quantity, Variable, Expression
-    :param pDx4:   half-length of the side at y=+pDy2 of the face at +pDz
+    :param pDx4:   length along x of the side at y=+pDy2/2 of the face at +pDz/2
     :type pDx4:    float, Constant, Quantity, Variable, Expression
     :param pAlp2:  angle wrt the y axis from the centre of the side (upper endcap)
     :type pAlp2:   float, Constant, Quantity, Variable, Expression
