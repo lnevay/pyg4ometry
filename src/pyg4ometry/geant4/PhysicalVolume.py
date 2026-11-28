@@ -119,20 +119,22 @@ class PhysicalVolume:
     def extent(self, includeBoundingSolid=True):
         _log.debug(f"PhysicalVolume.extent> {self.name}")
 
-        # transform daughter meshes to parent coordinates
-        dvmrot = _trans.tbxyz2matrix(self.rotation.eval())
-        dvtra = _np.array(self.position.eval())
+        # The PV rotation is passive as in Geant4, so the inverse places the daughter. Scale is
+        # applied after rotation, as in LogicalVolume._getPhysicalDaughterMesh.
+        mat = _np.array(_trans.tbxyz2matrix(self.rotation.eval())).T
+        if self.scale:
+            mat = _np.diag(self.scale.eval()) @ mat
+        tra = _np.array(self.position.eval())
 
+        # Transform all 8 corners of the daughter extent, as two opposite corners alone do not
+        # bound a rotated box.
         [vMin, vMax] = self.logicalVolume.extent(includeBoundingSolid)
+        corners = _np.array(
+            [[x, y, z] for x in (vMin[0], vMax[0]) for y in (vMin[1], vMax[1]) for z in (vMin[2], vMax[2])]
+        )
+        placed = corners @ mat.T + tra
 
-        # TODO do we need scale here?
-        vMinPrime = _np.array(dvmrot.dot(vMin) + dvtra).flatten()
-        vMaxPrime = _np.array(dvmrot.dot(vMax) + dvtra).flatten()
-
-        vmin = [min(a, b) for a, b in zip(vMinPrime, vMaxPrime)]
-        vmax = [max(a, b) for a, b in zip(vMinPrime, vMaxPrime)]
-
-        return [vmin, vmax]
+        return [list(placed.min(axis=0)), list(placed.max(axis=0))]
 
     def getAABBMesh(self):
         """return CSG.core (symmetric around the origin) axis aligned bounding box mesh"""
