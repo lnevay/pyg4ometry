@@ -125,25 +125,26 @@ class EllipticalCone(_SolidBase):
 
             vertices = []
 
-            vertices.append(_Vertex([x4, y4, z4]))
-            vertices.append(_Vertex([x3, y3, z3]))
-            vertices.append(_Vertex([x2, y2, z2]))
+            # Anticlockwise when viewed from outside so normals point outwards.
             vertices.append(_Vertex([x1, y1, z1]))
+            vertices.append(_Vertex([x2, y2, z2]))
+            vertices.append(_Vertex([x3, y3, z3]))
+            vertices.append(_Vertex([x4, y4, z4]))
 
             polygons.append(_Polygon(vertices))
 
             # Bigger face (-pzTopCut)
             verticesb = []
-            verticesb.append(_Vertex([x2, y2, z2]))
             verticesb.append(_Vertex([x3, y3, z3]))
+            verticesb.append(_Vertex([x2, y2, z2]))
             verticesb.append(centreBig)
             polygons.append(_Polygon(verticesb))
 
             # Smaller face (+pzTopCut)
             verticest = []
-            verticest.append(_Vertex([x1, y1, z1]))
-            verticest.append(centreSmall)
             verticest.append(_Vertex([x4, y4, z4]))
+            verticest.append(centreSmall)
+            verticest.append(_Vertex([x1, y1, z1]))
             polygons.append(_Polygon(verticest))
 
         mesh = _CSG.fromPolygons(polygons)
