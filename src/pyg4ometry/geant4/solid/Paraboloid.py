@@ -129,18 +129,19 @@ class Paraboloid(_SolidBase):
 
                 vertices = []
 
+                # Anticlockwise when viewed from outside so normals point outwards.
+                vertices.append(_Vertex([x4, y4, z4]))
+                vertices.append(_Vertex([x3, y3, z3]))
+                vertices.append(_Vertex([x2, y2, z2]))
                 if rho1 != 0:
                     vertices.append(_Vertex([x1, y1, z1]))
-                vertices.append(_Vertex([x2, y2, z2]))
-                vertices.append(_Vertex([x3, y3, z3]))
-                vertices.append(_Vertex([x4, y4, z4]))
                 polygons.append(_Polygon(vertices))
 
                 if rho1 != 0 and j == 0:
                     end = []
                     end.append(_Vertex([0, 0, -pDz]))
-                    end.append(_Vertex([x1, y1, -pDz]))
                     end.append(_Vertex([x4, y4, -pDz]))
+                    end.append(_Vertex([x1, y1, -pDz]))
                     polygons.append(_Polygon(end))
 
                 if j == stacks - 1:
@@ -148,7 +149,6 @@ class Paraboloid(_SolidBase):
                     end.append(_Vertex([0, 0, pDz]))
                     end.append(_Vertex([x2, y2, pDz]))
                     end.append(_Vertex([x3, y3, pDz]))
-                    end.reverse()
                     polygons.append(_Polygon(end))
 
         mesh = _CSG.fromPolygons(polygons)
