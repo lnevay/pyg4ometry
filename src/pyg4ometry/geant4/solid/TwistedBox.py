@@ -172,9 +172,6 @@ class TwistedBox(_SolidBase, _TwistedSolid):
         x = list(nx)
         y = list(ny)
 
-        # import matplotlib.pyplot as _plt
-        # _plt.plot(x,y,"+")
-
         return [x, y]
 
     def mesh(self):
