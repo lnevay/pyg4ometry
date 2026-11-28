@@ -382,7 +382,13 @@ class BOX(BodyMixin):
         )
 
     def rotation(self):
-        return self.transform.leftMultiplyRotation(np.identity(3))
+        # Local x, y and z map to the edge directions. The third axis is taken from the cross
+        # product so the matrix is a proper rotation even if the edges are left-handed, which
+        # is fine as the box is symmetric.
+        u1 = self.edge1.unit()
+        u2 = self.edge2.unit()
+        rotation = np.column_stack([u1, u2, np.cross(u1, u2)])
+        return self.transform.leftMultiplyRotation(rotation)
 
     def lengths(self):
         n = np.linalg.norm
