@@ -156,10 +156,11 @@ class Hype(_SolidBase):
 
                 vertices_outer = []
 
-                vertices_outer.append(_Vertex([x1_rot_outer, y1_rot_outer, z1_outer]))
-                vertices_outer.append(_Vertex([x2_rot_outer, y2_rot_outer, z2_outer]))
-                vertices_outer.append(_Vertex([x3_rot_outer, y3_rot_outer, z3_outer]))
+                # Anticlockwise when viewed from outside so normals point outwards.
                 vertices_outer.append(_Vertex([x4_rot_outer, y4_rot_outer, z4_outer]))
+                vertices_outer.append(_Vertex([x3_rot_outer, y3_rot_outer, z3_outer]))
+                vertices_outer.append(_Vertex([x2_rot_outer, y2_rot_outer, z2_outer]))
+                vertices_outer.append(_Vertex([x1_rot_outer, y1_rot_outer, z1_outer]))
 
                 polygons.append(_Polygon(vertices_outer))
 
@@ -190,26 +191,25 @@ class Hype(_SolidBase):
                     vertices_inner.append(_Vertex([x2_rot_inner, y2_rot_inner, z2_inner]))
                     vertices_inner.append(_Vertex([x3_rot_inner, y3_rot_inner, z3_inner]))
                     vertices_inner.append(_Vertex([x4_rot_inner, y4_rot_inner, z4_inner]))
-                    vertices_inner.reverse()
                     polygons.append(_Polygon(vertices_inner))
 
                     if i1 == 0:
                         verticesTop = []
 
-                        verticesTop.append(_Vertex([x1_rot_inner, y1_rot_inner, z1_inner]))
-                        verticesTop.append(_Vertex([x1_rot_outer, y1_rot_outer, z1_outer]))
-                        verticesTop.append(_Vertex([x4_rot_outer, y4_rot_outer, z4_outer]))
                         verticesTop.append(_Vertex([x4_rot_inner, y4_rot_inner, z4_inner]))
+                        verticesTop.append(_Vertex([x4_rot_outer, y4_rot_outer, z4_outer]))
+                        verticesTop.append(_Vertex([x1_rot_outer, y1_rot_outer, z1_outer]))
+                        verticesTop.append(_Vertex([x1_rot_inner, y1_rot_inner, z1_inner]))
 
                         polygons.append(_Polygon(verticesTop))
 
                     if i2 == stacks:
                         verticesBottom = []
 
-                        verticesBottom.append(_Vertex([x3_rot_inner, y3_rot_inner, z3_inner]))
-                        verticesBottom.append(_Vertex([x3_rot_outer, y3_rot_outer, z3_outer]))
-                        verticesBottom.append(_Vertex([x2_rot_outer, y2_rot_outer, z2_outer]))
                         verticesBottom.append(_Vertex([x2_rot_inner, y2_rot_inner, z2_inner]))
+                        verticesBottom.append(_Vertex([x2_rot_outer, y2_rot_outer, z2_outer]))
+                        verticesBottom.append(_Vertex([x3_rot_outer, y3_rot_outer, z3_outer]))
+                        verticesBottom.append(_Vertex([x3_rot_inner, y3_rot_inner, z3_inner]))
 
                         polygons.append(_Polygon(verticesBottom))
 
@@ -217,18 +217,18 @@ class Hype(_SolidBase):
                     if i1 == 0:
                         verticesTop = []
 
-                        verticesTop.append(_Vertex([x4_rot_outer, y4_rot_outer, z4_outer]))
-                        verticesTop.append(_Vertex([0, 0, -halfLenZ]))
                         verticesTop.append(_Vertex([x1_rot_outer, y1_rot_outer, z1_outer]))
+                        verticesTop.append(_Vertex([0, 0, -halfLenZ]))
+                        verticesTop.append(_Vertex([x4_rot_outer, y4_rot_outer, z4_outer]))
 
                         polygons.append(_Polygon(verticesTop))
 
                     if i2 == stacks:
                         verticesBottom = []
 
-                        verticesBottom.append(_Vertex([x2_rot_outer, y2_rot_outer, z2_outer]))
-                        verticesBottom.append(_Vertex([0, 0, halfLenZ]))
                         verticesBottom.append(_Vertex([x3_rot_outer, y3_rot_outer, z3_outer]))
+                        verticesBottom.append(_Vertex([0, 0, halfLenZ]))
+                        verticesBottom.append(_Vertex([x2_rot_outer, y2_rot_outer, z2_outer]))
 
                         polygons.append(_Polygon(verticesBottom))
 
