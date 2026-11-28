@@ -423,7 +423,7 @@ def rootShape2pyg4ometry(shape, reader, warnAboutBadShapes=True):
             return None
         shapePyG4 = _g4.solid.Paraboloid(
             shapeName,
-            shape.GetDz() * 2,
+            shape.GetDz(),  # Half length, as for the Paraboloid.
             shape.GetRlo(),
             shape.GetRhi(),
             registry,

@@ -3211,7 +3211,7 @@ def geant4Paraboloid2Fluka(
 
     uval = _Units.unit(solid.lunit) / 10.0
 
-    halflength = solid.evaluateParameter(solid.pDz) * uval / 2
+    halflength = solid.evaluateParameter(solid.pDz) * uval  # pDz is already a half length.
     rlow = solid.evaluateParameter(solid.pR1) * uval
     rhigh = solid.evaluateParameter(solid.pR2) * uval
 

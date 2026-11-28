@@ -25,11 +25,11 @@ class Paraboloid(_SolidBase):
 
     :param name:     of solid
     :type name:      str
-    :param pDz:      length along z
+    :param pDz:      half length along z
     :type pDz:       float, Constant, Quantity, Variable, Expression
-    :param pR1:      radius at -Dz/2
+    :param pR1:      radius at -Dz
     :type pR1:       float, Constant, Quantity, Variable, Expression
-    :param pR2:      radius at +Dz/2 (pR2 > pR1)
+    :param pR2:      radius at +Dz (pR2 > pR1)
     :type pR2:       float, Constant, Quantity, Variable, Expression
     :param registry: for storing solid
     :type registry:  Registry
@@ -83,7 +83,7 @@ class Paraboloid(_SolidBase):
         _log.debug("paraboloid.antlr>")
 
         uval = _Units.unit(self.lunit)
-        pDz = self.evaluateParameter(self.pDz) / 2.0 * uval
+        pDz = self.evaluateParameter(self.pDz) * uval  # Half length as in GDML and Geant4.
         pR1 = self.evaluateParameter(self.pR1) * uval
         pR2 = self.evaluateParameter(self.pR2) * uval
 
