@@ -149,11 +149,11 @@ class GenericTrap(_SolidBase):
 
         layers = []
 
-        z1 = 2 * float(self.dz) * uval
         z0 = -float(self.dz) * uval
+        z1 = float(self.dz) * uval
 
         for i in range(self.nstack + 1):
-            z = z0 + i * z1 / self.nstack
+            z = z0 + i * (z1 - z0) / self.nstack
             dz = (z - z0) / (z1 - z0)
 
             verts_i = []
