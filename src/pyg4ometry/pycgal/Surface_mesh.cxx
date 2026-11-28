@@ -195,22 +195,13 @@ void toCGALSurfaceMesh(Surface_mesh_EPICK &sm, py::list &polygons) {
     sm.add_vertex(Point_3_EPICK(v._x, v._y, v._z));
   }
 
+  // Faces of any number of vertices are added, otherwise larger polygons are silently
+  // dropped and the mesh is left open. They are triangulated afterwards if required.
   for (auto f : polys) {
-
-    if (f.size() == 3) {
-      sm.add_face(Surface_mesh_EPICK::Vertex_index((size_t)f[0]),
-                  Surface_mesh_EPICK::Vertex_index((size_t)f[1]),
-                  Surface_mesh_EPICK::Vertex_index((size_t)f[2]));
-    } else if (f.size() == 4) {
-      sm.add_face(Surface_mesh_EPICK::Vertex_index((size_t)f[0]),
-                  Surface_mesh_EPICK::Vertex_index((size_t)f[1]),
-                  Surface_mesh_EPICK::Vertex_index((size_t)f[2]),
-                  Surface_mesh_EPICK::Vertex_index((size_t)f[3]));
-    }
-    // TODO
-    // else {
-    //  sm.add_face(f);
-    //}
+    std::vector<Surface_mesh_EPICK::Vertex_index> face;
+    for (auto i : f)
+      face.push_back(Surface_mesh_EPICK::Vertex_index((size_t)i));
+    sm.add_face(face);
   }
 }
 
@@ -308,22 +299,13 @@ void toCGALSurfaceMesh(Surface_mesh_EPECK &sm, py::list &polygons) {
     sm.add_vertex(Point_3_EPECK(v._x, v._y, v._z));
   }
 
+  // Faces of any number of vertices are added, otherwise larger polygons are silently
+  // dropped and the mesh is left open. They are triangulated afterwards if required.
   for (auto f : polys) {
-
-    if (f.size() == 3) {
-      sm.add_face(Surface_mesh_EPECK::Vertex_index((size_t)f[0]),
-                  Surface_mesh_EPECK::Vertex_index((size_t)f[1]),
-                  Surface_mesh_EPECK::Vertex_index((size_t)f[2]));
-    } else if (f.size() == 4) {
-      sm.add_face(Surface_mesh_EPECK::Vertex_index((size_t)f[0]),
-                  Surface_mesh_EPECK::Vertex_index((size_t)f[1]),
-                  Surface_mesh_EPECK::Vertex_index((size_t)f[2]),
-                  Surface_mesh_EPECK::Vertex_index((size_t)f[3]));
-    }
-    // TODO
-    // else {
-    //  sm.add_face(f);
-    //}
+    std::vector<Surface_mesh_EPECK::Vertex_index> face;
+    for (auto i : f)
+      face.push_back(Surface_mesh_EPECK::Vertex_index((size_t)i));
+    sm.add_face(face);
   }
 }
 
